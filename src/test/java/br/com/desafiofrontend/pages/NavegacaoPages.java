@@ -106,18 +106,32 @@ public class NavegacaoPages extends Utils {
     }
 
     public void acessaMenu(String menu) {
+        WebElement elementoMenu = null;
+        
         if (menu.equals("forms")) {
-            menuForms.click();
+            elementoMenu = menuForms;
         } else if (menu.equals("alerts, frame & windows")) {
-            menuAlerts.click();
+            elementoMenu = menuAlerts;
         } else if (menu.equals("elements")) {
-            menuElements.click();
+            elementoMenu = menuElements;
         } else if (menu.equals("interactions")) {
-            menuInteractions.click();
+            elementoMenu = menuInteractions;
         } else if (menu.equals("widgets")) {
-            menuWidgets.click();
+            elementoMenu = menuWidgets;
         } else if (menu.equals("book store application")) {
-            menuBookStoreApplication.click();
+            elementoMenu = menuBookStoreApplication;
+        }
+        
+        if (elementoMenu != null) {
+            // Espera o elemento estar clicável
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            wait.until(ExpectedConditions.elementToBeClickable(elementoMenu));
+            
+            // Faz scroll até o elemento
+            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", elementoMenu);
+            
+            // Clica usando JavaScript para evitar interceptação
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", elementoMenu);
         }
     }
 
@@ -133,47 +147,82 @@ public class NavegacaoPages extends Utils {
 
     public void acessaSubMenu(String submenu) {
         // Para submenus específicos que exigem tratativa especial
-        String xpathDinamico = "//span[@class='text' and text()='" + submenu + "']";
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpathDinamico)));
+        // Tenta com a busca case-insensitive (normalize-space para remover espaços extras)
+        String xpathDinamico = "//span[@class='text' and contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), '" 
+                              + submenu.toLowerCase() + "')]";
         
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
-        element.click();
-    }
-
-    public void acessarOperacao(String operacao) {
-        if(operacao.equals("adicionar")){
-            botaoAddNovoRegistro.click();
-        } else if(operacao.equals("editar")){
-            botaoEditaRegistro.click();
-        } else if(operacao.equals("deletar")){
-            botaoDeletaRegistro.click();
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        try {
+            WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpathDinamico)));
+            
+            // Scroll até o elemento
+            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
+            
+            // Small delay para garantir que o elemento está pronto
+            Thread.sleep(500);
+            
+            // Clica usando JavaScript para evitar obstruções
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+        } catch (Exception e) {
+            System.out.println("Erro ao acessar submenu: " + submenu + " - " + e.getMessage());
+            throw new RuntimeException("Submenu '" + submenu + "' não encontrado ou não clicável");
         }
     }
 
-    public void realizarOperacao(String acao) throws InterruptedException{
-        if(acao.equals("preencho")){
-            driver.findElement(By.xpath("//div[4]/div/div")).isDisplayed();
+    public void acessarOperacao(String operacao) {
+        WebElement botao = null;
+        if (operacao.equals("adicionar")) {
+            botao = botaoAddNovoRegistro;
+        } else if (operacao.equals("editar")) {
+            botao = botaoEditaRegistro;
+        } else if (operacao.equals("deletar")) {
+            botao = botaoDeletaRegistro;
+        }
+
+        if (botao != null) {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebElement el = wait.until(ExpectedConditions.visibilityOf(botao));
+            ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", el);
+            // Clica via JS para evitar interceptações de elementos sobrepostos
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", el);
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
+
+    public void realizarOperacao(String acao) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        
+        if (acao.equals("preencho")) {
+            wait.until(ExpectedConditions.visibilityOf(campoNome));
             campoNome.sendKeys("Bruno");
             campoSobrenome.sendKeys("Teste");
             campoEmail.sendKeys("teste@teste.com.br");
             campoIdade.sendKeys("36");
             campoSalario.sendKeys("5000");
             campoDepto.sendKeys("TI");
-            botaoSubmitFormulario.click();
-        } else if(acao.equals("altero")){
-            driver.findElement(By.xpath("//div[4]/div/div")).isDisplayed();
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", botaoSubmitFormulario);
+        } else if (acao.equals("altero")) {
+            wait.until(ExpectedConditions.visibilityOf(campoNome));
             campoNome.clear();
             campoNome.sendKeys("Alteracao");
-            botaoSubmitFormulario.click();
-        } else if(acao.equals("excluo")){
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", botaoSubmitFormulario);
+        } else if (acao.equals("excluo")) {
+            int safetyCount = 0;
             while (true) {
-                List<WebElement> deleteButtons = driver.findElements(By.xpath("//*[contains(@id, 'delete-record-')]"));
-                if (deleteButtons.isEmpty()) {
+                List<WebElement> deleteButtons = driver.findElements(By.cssSelector("[id^='delete-record-']"));
+                if (deleteButtons.isEmpty() || safetyCount++ > 20) {
                     break;
                 }
-                deleteButtons.get(0).click();
-                Thread.sleep(1000);
+                WebElement btn = deleteButtons.get(0);
+                ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", btn);
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException ignored) {
+                }
             }
         }
     }
@@ -195,36 +244,62 @@ public class NavegacaoPages extends Utils {
     }
 
     public void pesquisaRegistro(String registro){
+        campoPesquisa.clear();
         campoPesquisa.sendKeys(registro);
     }
 
     public void validaPesquisa(String registro){
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.or(
+            ExpectedConditions.visibilityOfElementLocated(By.cssSelector("div.rt-tbody div.rt-tr-group")),
+            ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[contains(text(), 'No rows found')]")
+        )));
+
         for (String[] valores : REGISTROS) {
             if (registro.equals(valores[0])) {
                 validarElementos(valores);
-                break;
+                return;
             }
         }
+        Assert.fail("Registro esperado nao encontrado na lista de dados: " + registro);
     }       
 
     public void pesquisaNegativaDeRegistros(){
         try {
-            WebElement element = driver.findElement(By.xpath("//*[@id=\"app\"]/div/div/div/div[2]/div[2]/div[3]/div[3]"));
+            WebElement element = driver.findElement(By.xpath("//*[contains(text(), 'No rows found')]") );
             String elementoNegativo = element.getText();
-            Assert.assertEquals(elementoNegativo, "No rows found");
+            Assert.assertTrue(elementoNegativo.contains("No rows found"));
         } catch (Exception e) {
-            e.printStackTrace();
+            Assert.fail("Nao foi exibida a mensagem de nenhum registro encontrado");
         }
     }
 
     private void validarElementos(String[] expectedValues) {
-        List<WebElement> elements = driver.findElements(By.cssSelector("div.rt-td"));
-        for (int i = 1; i < expectedValues.length; i++) {
-            String actualText = elements.get(i - 1).getText();
-            if (actualText.equals(expectedValues[i])) {
-                System.out.println("Elemento " + i + " esta correto: " + actualText);
-            } else {
-                System.out.println("Elemento " + i + " esta incorreto: " + actualText);
+        List<WebElement> rows = driver.findElements(By.cssSelector("div.rt-tbody div.rt-tr-group"));
+        if (rows.isEmpty()) {
+            Assert.fail("Nenhum registro encontrado na tabela para validação");
+            return;
+        }
+
+        WebElement matchingRow = null;
+        for (WebElement row : rows) {
+            List<WebElement> cells = row.findElements(By.cssSelector("div.rt-td"));
+            if (!cells.isEmpty() && cells.get(0).getText().equals(expectedValues[0])) {
+                matchingRow = row;
+                break;
+            }
+        }
+
+        if (matchingRow == null) {
+            Assert.fail("Registro não encontrado na tabela: " + expectedValues[0]);
+            return;
+        }
+
+        List<WebElement> cells = matchingRow.findElements(By.cssSelector("div.rt-td"));
+        for (int i = 1; i < expectedValues.length && i < cells.size(); i++) {
+            String actualText = cells.get(i).getText();
+            if (!actualText.equals(expectedValues[i])) {
+                Assert.fail(String.format("Valor incorreto na coluna %d: esperado='%s' atual='%s'", i, expectedValues[i], actualText));
             }
         }
     }

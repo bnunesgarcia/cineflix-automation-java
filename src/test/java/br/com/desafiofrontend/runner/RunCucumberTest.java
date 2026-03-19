@@ -17,7 +17,7 @@ import java.util.Properties;
 @CucumberOptions(
         features = {"src/test/resources/features"},
         plugin = {"pretty", "html:report/test-report.html", "json:report/test-report.json"},
-        tags = "@teste_menus",
+        // tags = "@teste_registros",
         glue = {"br.com.desafiofrontend.steps"}
 )
 public class RunCucumberTest {
