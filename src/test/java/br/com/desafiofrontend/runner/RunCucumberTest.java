@@ -6,8 +6,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
-
+import org.openqa.selenium.chrome.ChromeDriver;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +17,7 @@ import java.util.Properties;
 @CucumberOptions(
         features = {"src/test/resources/features"},
         plugin = {"pretty", "html:report/test-report.html", "json:report/test-report.json"},
-//        tags = "@test",
+        // tags = "@teste_registros",
         glue = {"br.com.desafiofrontend.steps"}
 )
 public class RunCucumberTest {
@@ -30,7 +29,8 @@ public class RunCucumberTest {
     public static void setup() throws IOException {
         InputStream variables = new FileInputStream("src/test/resources/application.properties");
         properties.load(variables);
-        driver = new FirefoxDriver();
+        // driver = new FirefoxDriver();
+        driver = new ChromeDriver();
         driver.manage().window().maximize();
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(3));
     }

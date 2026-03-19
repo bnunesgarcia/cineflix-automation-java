@@ -4,11 +4,11 @@ Funcionalidade: Validar menus na tela inicial do sistema
     Quero acessar a aplicação demoqa
     Para validar através dos menus as funcionalidades existentes no sistema
 
-    Esquema do Cenário: Validar as funcionalidades existentes no sistema
+    Esquema do Cenario: Validar menus e submenus da aplicacao demoqa
         Dado que eu acesse a aplicacao demoqa
         E o menu <menu> esta disponivel
         Quando eu clico no menu <menu>
-        Entao os submenus do menu <menu> devem ser exibidos
+        Entao o submenu <menu> deve estar disponivel
 
         Exemplos:
             | menu                    |

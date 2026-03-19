@@ -1,4 +1,4 @@
-name: Java CI com Maven
+name: Run Tests frontend
 
 on:
   push:
@@ -11,31 +11,44 @@ jobs:
     runs-on: Agent-Windows
 
     steps:
-      - name: Check out repository code
+      - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up JDK 11
+      - name: Set up JDK 21
         uses: actions/setup-java@v2
         with:
-          distribution: 'zulu'
-          java-version: '11.0.18'
+          java-version: '21'
+          distribution: 'adopt'
 
-      - name: Set up Maven
-        uses: actions/setup-java@v2
+      - name: Cache Maven packages
+        uses: actions/cache@v3
         with:
-          distribution: 'zulu'
-          java-version: '11.0.18'
-          cache: 'maven'
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
 
-      - name: Build with Maven
-        run: mvn -B clean install -DskipTests=true -e -X
+      - name: Install GeckoDriver
+        run: |
+          curl -L -o geckodriver.zip https://github.com/mozilla/geckodriver/releases/download/v0.30.0/geckodriver-v0.30.0-win64.zip
+          tar -xf geckodriver.zip
+          move geckodriver.exe C:\Windows\System32
 
-      - name: Run tests with Maven
-        run: mvn -B test -Dtest=RunCucumberTest test
+      - name: Install Firefox
+        run: |
+          choco install firefox --version=94.0.2
 
-      # - name: Publish test result
-      #   if: always()
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: surefire-reports
-      #     path: '**/target/surefire-reports/*.xml'
+      - name: Install dependencies
+        run: mvn install -DskipTests
+
+      - name: Run tests
+        run: mvn test
+
+      - name: Generate Test Report
+        run: mvn surefire-report:report-only
+
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-report
+          path: target/site/surefire-report.html

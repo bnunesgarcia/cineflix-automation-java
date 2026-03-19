@@ -1,43 +1,37 @@
-# desafio-automacao
-Desafio de testes automatizados frontend
+🧪 Desafio de Automação Frontend - DemoQA
+Este projeto contém a automação de testes para a plataforma DemoQA, utilizando Java, Selenium WebDriver e Cucumber (BDD).
 
-Aqui está um exemplo de README que você pode usar como base para o seu projeto de testes automatizados:
+🚀 Pré-requisitos
+Para rodar este projeto, você precisará ter instalado em sua máquina:
 
-**Projeto de Testes Automatizados com BDD e Selenium**
+Java JDK (versão 11 ou superior): Download aqui
 
-**Descrição**
+Certifique-se de configurar a variável de ambiente JAVA_HOME.
 
-Este projeto utiliza o framework de testes BDD (Behavior-Driven Development) com Gherkin para criar planos de testes automatizados para uma aplicação web. Os testes são escritos em Java e utilizam o Selenium WebDriver para interagir com a aplicação.
+Maven (versão 3.6+): Download aqui
 
-**Estrutura do Projeto**
+Certifique-se de que o comando mvn está acessível no seu terminal/CMD.
 
-* **PageObjects**: contém as classes que representam as páginas da aplicação e os métodos para interagir com elas.
-* **Utils**: contém as classes de utilidade para auxiliar nos testes.
-* **Testes**: contém as classes de teste que utilizam o framework de testes BDD com Gherkin.
+Google Chrome: Os testes estão configurados para rodar no Chrome via ChromeDriver (gerenciado automaticamente pelo Selenium Manager).
 
-**Tecnologias Utilizadas**
+🛠️ Tecnologias Utilizadas
+Linguagem: Java
 
-* **Java**: linguagem de programação utilizada para escrever os testes.
-* **Selenium WebDriver**: framework de automação de navegador utilizado para interagir com a aplicação.
-* **Gherkin**: framework de testes BDD utilizado para criar planos de testes.
-* **Maven**: ferramenta de gerenciamento de dependências e build utilizada para compilar e executar os testes.
+Gerenciador de Dependências: Maven
 
-**Pipeline de Integração Contínua**
+Automação Web: Selenium WebDriver (Page Object Model + PageFactory)
 
-O pipeline de integração contínua é configurado para executar os seguintes passos:
+BDD / Escrita de Testes: Cucumber & Gherkin
 
-1. **Build e Instalação**: compila e instala o projeto utilizando o Maven.
-2. **Execução de Testes**: executa os testes utilizando o Maven e o framework de testes BDD com Gherkin.
-3. **Publicação de Resultados**: publica os resultados dos testes no Azure DevOps.
+Massa de Dados: Java Faker (Geração de dados aleatórios)
 
-**Configuração do Pipeline**
+📁 Estrutura do Projeto
+src/test/resources/features: Arquivos .feature com a descrição dos cenários em Gherkin.
 
-O pipeline é configurado para ser executado automaticamente a cada push no branch master. A configuração do pipeline está no arquivo `azure-pipelines.yml`.
+src/test/java/steps: Definições dos passos (Step Definitions).
 
-**Como Executar os Testes**
+src/test/java/pages: Classes Page Objects com o mapeamento de elementos e ações.
 
-Para executar os testes localmente, é necessário ter o Maven e o Java instalados no ambiente. Execute o comando `mvn test` para executar os testes.
+src/test/java/support: Classes utilitárias e inicialização do Driver.
 
-**Como Contribuir**
-
-Para contribuir com o projeto, é necessário ter conhecimento em Java, Selenium WebDriver e Gherkin. Os testes devem ser escritos seguindo as boas práticas de programação e os padrões de teste BDD. Os pull requests devem ser enviados para o branch master.
+src/test/resources/application.properties: Configurações de URL, Navegador e Timeouts.
