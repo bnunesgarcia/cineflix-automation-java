@@ -1,37 +1,53 @@
-🧪 Desafio de Automação Frontend - DemoQA
-Este projeto contém a automação de testes para a plataforma DemoQA, utilizando Java, Selenium WebDriver e Cucumber (BDD).
 
-🚀 Pré-requisitos
-Para rodar este projeto, você precisará ter instalado em sua máquina:
+# 🚀 Cineflix Automation Project - RecordTV
 
-Java JDK (versão 11 ou superior): Download aqui
+Este projeto é uma suíte de testes automatizados **End-to-End (E2E)** para a plataforma **Cineflix**, desenvolvida durante minha atuação na **RecordTV**. O foco principal é validar fluxos críticos de negócio, como o gerenciamento de departamentos e perfis de acesso, garantindo a estabilidade e qualidade das entregas.
 
-Certifique-se de configurar a variável de ambiente JAVA_HOME.
+## 🛠️ Tecnologias Utilizadas
 
-Maven (versão 3.6+): Download aqui
+* **Linguagem:** Java 17
+* **Framework de Teste:** Selenium WebDriver
+* **BDD (Behavior Driven Development):** Cucumber
+* **Gerenciamento de Dependências:** Maven
+* **Padrão de Projeto:** Page Objects (POM)
+* **Relatórios:** ExtentReports / Cucumber Reports
 
-Certifique-se de que o comando mvn está acessível no seu terminal/CMD.
+## 🏗️ Arquitetura do Projeto
 
-Google Chrome: Os testes estão configurados para rodar no Chrome via ChromeDriver (gerenciado automaticamente pelo Selenium Manager).
+O projeto foi estruturado seguindo as melhores práticas de Clean Code e reutilização de componentes:
 
-🛠️ Tecnologias Utilizadas
-Linguagem: Java
 
-Gerenciador de Dependências: Maven
 
-Automação Web: Selenium WebDriver (Page Object Model + PageFactory)
+* **Features:** Arquivos `.feature` escritos em Gherkin (Português/Inglês) descrevendo o comportamento esperado.
+* **Steps:** Camada que traduz a linguagem de negócio para chamadas de métodos técnicos.
+* **Pages:** Implementação do padrão **Page Objects**, onde cada página da aplicação tem sua classe correspondente, isolando os seletores (XPath/CSS) da lógica de teste.
+* **Support/Utils:** Classes auxiliares para tratamento de esperas explícitas, interações via JavaScript e utilitários globais.
 
-BDD / Escrita de Testes: Cucumber & Gherkin
+## 🧪 Diferenciais Técnicos
 
-Massa de Dados: Java Faker (Geração de dados aleatórios)
+* **Resiliência:** Implementação de estratégias de *Retry* e esperas dinâmicas (`WebDriverWait`) para lidar com o comportamento assíncrono do Angular Material.
+* **Autenticação Automatizada:** Script PowerShell integrado para obtenção de tokens OAuth2 via Azure AD, permitindo testes em ambientes com segurança rigorosa.
+* **Escalabilidade:** Lógica preparada para processamento em lote (ex: exclusão massiva de registros) com tratamento de exceções robusto.
 
-📁 Estrutura do Projeto
-src/test/resources/features: Arquivos .feature com a descrição dos cenários em Gherkin.
+## 🚀 Como Executar
 
-src/test/java/steps: Definições dos passos (Step Definitions).
+1.  **Pré-requisitos:**
+    * JDK 17+
+    * Maven instalado
+    * ChromeDriver compatível com sua versão do Chrome.
 
-src/test/java/pages: Classes Page Objects com o mapeamento de elementos e ações.
+2.  **Instalação:**
+    ```bash
+    git clone https://github.com/SEU_USUARIO/cineflix-automation-java.git
+    cd cineflix-automation-java
+    mvn install
+    ```
 
-src/test/java/support: Classes utilitárias e inicialização do Driver.
+3.  **Execução via Terminal:**
+    ```bash
+    mvn test -Dcucumber.options="classpath:features"
+    ```
 
-src/test/resources/application.properties: Configurações de URL, Navegador e Timeouts.
+## 📊 Relatórios
+
+Ao final de cada execução, o framework gera relatórios detalhados que permitem a análise rápida de falhas, capturando evidências e logs de erro do Selenium.

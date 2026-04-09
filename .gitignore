@@ -36,3 +36,8 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+# Segredos e Tokens
+token.txt
+scripts/get-azure-token.ps1
+src/test/resources/application.properties
