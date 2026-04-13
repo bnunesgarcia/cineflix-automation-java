@@ -1,11 +1,14 @@
 package br.com.cineflix.pages;
 import java.time.Duration;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -13,6 +16,15 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import br.com.cineflix.support.Utils;
 
 public class UsuariosPages extends Utils {
+
+    @FindBy(xpath = "//input[@placeholder='Nome']")
+    private WebElement campoNome;
+
+    @FindBy(xpath = "//input[@placeholder='E-mail']")
+    private WebElement campoEmail;
+
+    @FindBy(xpath = "//input[@placeholder='Login']")
+    private WebElement campoLogin;
 
     public UsuariosPages() {
     PageFactory.initElements(driver, this);
@@ -56,22 +68,68 @@ public class UsuariosPages extends Utils {
     }
 
     public void visualizarColunasTabela(List<String> colunasEsperadas) {
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("th, mat-header-cell")));
+        List<WebElement> headersElementos = driver.findElements(By.xpath("//th | //mat-header-cell"));
+        
+        List<String> colunasNaTela = headersElementos.stream()
+                .map(el -> el.getText().trim())
+                .filter(texto -> !texto.isEmpty())
+                .collect(Collectors.toList());
 
-        for (String nomeColuna : colunasEsperadas) {
-            String xpathColuna = String.format("//th[normalize-space()='%s'] | //mat-header-cell[normalize-space()='%s']", nomeColuna, nomeColuna);
-            
-            try {
-                WebElement elemento = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpathColuna)));
+        for (String coluna : colunasEsperadas) {
+            Assert.assertTrue("Erro: A coluna [" + coluna + "] não foi encontrada. Colunas presentes: " + colunasNaTela,
+                    colunasNaTela.contains(coluna));
+            System.out.println("Coluna validada com sucesso: " + coluna);
+        }
+    }
+
+    public void esperarEValidarCampoPreenchido(WebElement elemento, String nomeCampo) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
+        try {
+            wait.until(driver -> {
+                // 1. Tenta o valor do atributo (para inputs)
+                String valor = elemento.getAttribute("value");
                 
-                Assert.assertTrue("A coluna '" + nomeColuna + "' não está visível na tabela!", 
-                                elemento.isDisplayed());
-                                
-                System.out.println("Coluna validada: " + nomeColuna);
+                // 2. Se falhar, tenta o texto visível padrão
+                if (valor == null || valor.trim().isEmpty()) {
+                    valor = elemento.getText();
+                }
                 
-            } catch (TimeoutException e) {
-                Assert.fail("Erro: A coluna [" + nomeColuna + "] não foi encontrada na tabela de listagem.");
-            }
+                // 3. Se ainda falhar (comum em SPAs), força a leitura do conteúdo textual via JS
+                if (valor == null || valor.trim().isEmpty()) {
+                    valor = elemento.getAttribute("textContent");
+                }
+
+                return valor != null && !valor.trim().isEmpty();
+            });
+        } catch (TimeoutException e) {
+            Assert.fail("O campo '" + nomeCampo + "' não foi preenchido após 10 segundos.");
+        }
+    }
+
+    @FindBy(css = "mat-select[formcontrolname='department'] span.mat-mdc-select-min-line")
+    private WebElement valorDepartamento;
+
+    @FindBy(css = "mat-select[formcontrolname='accessProfile'] span.mat-mdc-select-min-line")
+    private WebElement valorPerfilAcesso;
+
+    public WebElement getElementoPorNome(String nomeCampo) {
+        switch (nomeCampo.toLowerCase()) {
+            case "nome": 
+                return campoNome;
+            case "email": 
+            case "e-mail":
+                return campoEmail;
+            case "login": 
+                return campoLogin;
+            case "departamento": 
+                return valorDepartamento;
+            case "perfil de acesso": 
+                return valorPerfilAcesso;
+            default: 
+                throw new IllegalArgumentException("Campo não mapeado: " + nomeCampo);
         }
     }
 
@@ -98,6 +156,13 @@ public class UsuariosPages extends Utils {
         } catch (Exception e) {
             Assert.fail("Não foi possível localizar ou clicar no botão: " + nomeBotao + ". Erro: " + e.getMessage());
         }
+    }
+
+    @FindBy(css = "button[role='switch']")
+    private WebElement switchButton;
+
+    public void visualizarToggleStatus(){
+        switchButton.isDisplayed();
     }
 
     public void visualizarTitulo(String tituloEsperado) {

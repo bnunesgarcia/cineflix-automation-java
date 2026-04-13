@@ -1,7 +1,11 @@
 package br.com.cineflix.steps;
 import java.util.List;
+
+import org.openqa.selenium.WebElement;
+
 import br.com.cineflix.pages.UsuariosPages;
 import br.com.cineflix.support.Utils;
+import io.cucumber.datatable.DataTable;
 import io.cucumber.java.pt.*;
 
 public class Usuarios extends Utils {
@@ -19,7 +23,9 @@ public class Usuarios extends Utils {
     }
 
     @E("a tabela de listagem deve conter as colunas:")
-    public void a_tabela_de_listagem_deve_conter_as_colunas(List<String> colunasEsperadas) {
+    public void a_tabela_de_listagem_deve_conter_as_colunas(DataTable dataTable) {
+        // Transforma a DataTable em uma List<String>
+        List<String> colunasEsperadas = dataTable.asList();
         usuarios.visualizarColunasTabela(colunasEsperadas);
     }
 
@@ -31,6 +37,32 @@ public class Usuarios extends Utils {
     @Então("o sistema deve exibir o título {string}")
     public void o_sistema_deve_exibir_o_titulo(String titulo) {
         usuarios.visualizarTitulo(titulo);
+    }
+
+    @E("a tela de edição deve conter o toggle de status do usuario")
+    public void visualizar_toggle_status() {
+        usuarios.visualizarToggleStatus();
+    }
+
+    @E("os campos {string}, {string} e {string} devem estar preenchidos")
+    public void validarCamposEditados(String campo1, String campo2, String campo3) {
+        // Valida o primeiro campo
+        validarFluxoDeCampo(campo1);
+        // Valida o segundo campo
+        validarFluxoDeCampo(campo2);
+        // Valida o terceiro campo
+        validarFluxoDeCampo(campo3);
+    }
+
+    @E("as caixa de seleção {string} deve exibir a opção previamente cadastrada")
+    public void validarCaixaSelecao(String nomeDaCaixa) {
+        WebElement elemento = usuarios.getElementoPorNome(nomeDaCaixa);
+        usuarios.esperarEValidarCampoPreenchido(elemento, nomeDaCaixa);
+    }
+
+    private void validarFluxoDeCampo(String nomeDoCampoNoGherkin) {
+        WebElement elemento = usuarios.getElementoPorNome(nomeDoCampoNoGherkin);
+        usuarios.esperarEValidarCampoPreenchido(elemento, nomeDoCampoNoGherkin);
     }
 
     @E("o sistema deve exibir os campos para preenchimento:")

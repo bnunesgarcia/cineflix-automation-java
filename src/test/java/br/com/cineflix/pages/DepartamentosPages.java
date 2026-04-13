@@ -32,11 +32,14 @@ public class DepartamentosPages extends Utils {
     @FindBy(xpath = "//span[contains(@class, 'mdc-button__label') and text()='Salvar']")
     private WebElement botaoSalvar;
 
-    @FindBy(xpath = "//span[@class='mdc-button__label' and text()='Adicionar']")
+    @FindBy(xpath = "//span[contains(@class, 'mdc-button__label') and contains(text(), 'Adicionar')]")
     private WebElement botaoAddDepto;
 
     @FindBy(xpath = "(//tbody/tr//button//mat-icon[text()='edit']/parent::button)[1]")
     private WebElement primeiroBotaoEditarPerfilDeAcesso;
+
+    @FindBy(css = "tbody tr:first-child button .mat-icon[data-mat-icon-type='font']")
+    private WebElement primeiroBotaoEditarUsuario;
 
     @FindBy(xpath = "(//button[.//mat-icon[text()='edit']])[1]")
     private WebElement primeiroBotaoEditarDepartamento;
@@ -47,6 +50,17 @@ public class DepartamentosPages extends Utils {
     public DepartamentosPages() {
     PageFactory.initElements(driver, this);
 
+    }
+
+    public WebElement getElementoPorNome(String nomeCampo) {
+        switch (nomeCampo.toLowerCase()) {
+            case "nome": return campoNome;
+            case "descrição":
+            case "descricao": return campoDescricao;
+            case "título":
+            case "titulo": return campoTitulo;
+            default: throw new IllegalArgumentException("Campo não mapeado: " + nomeCampo);
+        }
     }
 
     public void campoTextoPesquisa() {
@@ -106,6 +120,8 @@ public class DepartamentosPages extends Utils {
             executarCliqueSeguro(primeiroBotaoEditarPerfilDeAcesso);
         } else if (tipo.equalsIgnoreCase("departamento")) {
             executarCliqueSeguro(primeiroBotaoEditarDepartamento);
+        } else if (tipo.equalsIgnoreCase("usuario")){
+            executarCliqueSeguro(primeiroBotaoEditarUsuario);
         }
     }
 
@@ -119,21 +135,22 @@ public class DepartamentosPages extends Utils {
         }
     }
 
-    public void validarCampoPreenchido(String campo1, String campo2) throws InterruptedException {
-        Thread.sleep(2000);
-        if (campo1.equals("Nome")) {
-            String valorCampoNome = campoNome.getAttribute("value");
-            String valorCampoDescricao = campoDescricao.getAttribute("value");
+    public void esperarEValidarCampoPreenchido(WebElement elemento, String nomeCampo) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
-            Assert.assertFalse("O campo '" + campo1 + "' não está preenchido!", valorCampoNome.isEmpty());
-            Assert.assertFalse("O campo '" + campo2 + "' não está preenchido!", valorCampoDescricao.isEmpty());
-        } else {
-            String valorCampoTitulo = campoTitulo.getAttribute("value");
-            String valorCampoDescricao = campoDescricao.getAttribute("value");
-
-            Assert.assertFalse("O campo '" + campo1 + "' não está preenchido!", valorCampoTitulo.isEmpty());
-            Assert.assertFalse("O campo '" + campo2 + "' não está preenchido!", valorCampoDescricao.isEmpty());
+        try {
+            // Espera até que o atributo 'value' não esteja mais vazio ou nulo
+            wait.until(driver -> {
+                String valor = elemento.getAttribute("value");
+                return valor != null && !valor.trim().isEmpty();
+            });
+        } catch (TimeoutException e) {
+            Assert.fail("O campo '" + nomeCampo + "' não foi preenchido após 10 segundos.");
         }
+
+        // Validação final por segurança
+        String valorFinal = elemento.getAttribute("value");
+        Assert.assertFalse("O campo '" + nomeCampo + "' deveria estar preenchido!", valorFinal.isEmpty());
     }
 
     public void confirmarExclusaoNoModal(){

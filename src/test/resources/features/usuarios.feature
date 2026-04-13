@@ -26,6 +26,29 @@ Funcionalidade: Gerenciamento de Usuários
         | Conta Ativa      |
         | Ações            |
 
+    @automacao
+    Cenário: Validar interface para inclusão de novo usuário
+        Quando eu clicar no botão "Adicionar"
+        Então o sistema deve exibir o título "Cadastrar Novo Usuário"
+        E o sistema deve exibir os campos para preenchimento:
+        | Nome             |
+        | E-mail           |
+        | Login            |
+        | Departamento     |
+        | Perfil de Acesso |
+        # E deve exibir a flag de status "Ativo" como um botão slide-toggle
+        E deve exibir o botão "Salvar"
+        E deve exibir o botão "Cancelar"
+
+    @automacao
+    Cenário: Validar interface para edição de usuário existente
+        Quando eu clicar no botao de editar "usuario"
+        Então o sistema deve exibir o título "Atualizar Usuário"
+        E os campos "Nome", "E-mail" e "Login" devem estar preenchidos
+        # E as caixa de seleção "Departamento" deve exibir a opção previamente cadastrada
+        # E as caixa de seleção "Perfil de Acesso" deve exibir a opção previamente cadastrada
+        E a tela de edição deve conter o toggle de status do usuario
+
     @tst_manual
     Esquema do Cenário: Filtrar usuários por diferentes critérios
         # Quando eu preencher o campo de pesquisa com "<valor>"
@@ -81,31 +104,6 @@ Funcionalidade: Gerenciamento de Usuários
         # Então o sistema deve iniciar o download do arquivo no formato "xls"
         # E o download deve ser realizado com sucesso
         # E os mesmos campos que estão sendo exibidos na aplicação devem estar presentes no arquivo baixado
-
-    @automacao
-    Cenário: Validar interface para inclusão de novo usuário
-        Quando eu clicar no botão "Adicionar"
-        Então o sistema deve exibir o título "Cadastrar Novo Usuário"
-        E o sistema deve exibir os campos para preenchimento:
-        | Nome             |
-        | E-mail           |
-        | Login            |
-        | Departamento     |
-        | Perfil de Acesso |
-        # E deve exibir a flag de status "Ativo" como um botão slide-toggle
-        E deve exibir o botão "Salvar"
-        E deve exibir o botão "Cancelar"
-
-    @tst_manual
-    Cenário: Validar interface para edição de usuário existente
-        # Quando eu clicar no botao de editar de um dos usuarios
-        # Então o sistema deve exibir o título "Atualizar Usuário"
-        # E o campo "Nome" deve vir preenchido com o nome atual do usuário
-        # E o campo "E-mail" deve vir preenchido com o e-mail atual do usuário
-        # E o campo "Login" deve vir preenchido com o login atual do usuário
-        # E as caixa de seleção "Departamento" deve exibir a opção previamente cadastrada
-        # E as caixa de seleção "Perfil de Acesso" deve exibir a opção previamente cadastrada
-        # E a tela de edição deve conter o toggle de status do usuario
 
     @db_insert @tst_manual
     Cenário: Validar criação de novo usuário no SQL Server

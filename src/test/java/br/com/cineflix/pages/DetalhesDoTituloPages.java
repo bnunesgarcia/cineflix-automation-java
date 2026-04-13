@@ -1,6 +1,7 @@
 package br.com.cineflix.pages;
 import java.time.Duration;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.Assert;
 import org.openqa.selenium.By;
@@ -23,6 +24,10 @@ public class DetalhesDoTituloPages extends Utils {
     private WebElement secaoDirecao;
     @FindBy(xpath = "//h3[normalize-space()='Elenco']")
     private WebElement secaoElenco;
+    @FindBy(xpath = "//h2[text()='Contratos']")
+    private WebElement modalContratos;
+    @FindBy(css = ".video-dialog iframe.player")
+    private WebElement playerVideo;
 
     public DetalhesDoTituloPages() {
     PageFactory.initElements(driver, this);
@@ -98,8 +103,63 @@ public class DetalhesDoTituloPages extends Utils {
         tabelaDetalhesExibicao.isDisplayed();
     }
 
-    public void validarCardsComFotoENome(String categoria) {
-
+    public void validaCaixaDeDialogo(){
+        modalContratos.isDisplayed();
     }
 
+    public void validarColunasTabela(String nomeTabela, List<String> colunasEsperadas) {
+        String seletorTabela = nomeTabela.equalsIgnoreCase("vigencia") ? ".contratos-table" : ".direitos-table";
+        List<WebElement> headersEncontrados = driver.findElements(By.cssSelector(seletorTabela + " th"));
+        
+        List<String> colunasCapturadas = headersEncontrados.stream()
+                .map(WebElement::getText)
+                .map(String::trim)
+                .filter(texto -> !texto.isEmpty())
+                .collect(Collectors.toList());
+
+        Assert.assertEquals("As colunas da tabela " + nomeTabela + " não conferem!", colunasEsperadas, colunasCapturadas);
+    }
+
+    public void validarPresencaDetalhesTecnicos(List<String> labelsEsperados) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(15));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".fields-grid")));
+        List<WebElement> labelsElementos = driver.findElements(By.cssSelector(".field-card .label"));
+        
+        List<String> labelsNaTela = labelsElementos.stream()
+                .map(el -> el.getText().replace(":", "").trim())
+                .collect(Collectors.toList());
+
+        for (String labelEsperado : labelsEsperados) {
+            boolean encontrou = labelsNaTela.stream()
+                    .anyMatch(l -> l.equalsIgnoreCase(labelEsperado.trim()));
+            
+            Assert.assertTrue("O campo '" + labelEsperado + "' não foi encontrado! Campos na tela: " + labelsNaTela, encontrou);
+            String xpathValor = String.format("//span[contains(.,'%s')]/following-sibling::strong", labelEsperado);
+            
+            WebElement valorElemento = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpathValor)));
+            
+            String valorTexto = valorElemento.getText().trim();
+            Assert.assertFalse("O campo '" + labelEsperado + "' está vazio!", valorTexto.isEmpty());
+            
+            System.out.println("Sucesso: " + labelEsperado + " encontrado com valor: " + valorTexto);
+        }
+    }
+
+    public void validarTrailer() {
+        playerVideo.isDisplayed();
+    }
+
+    @FindBy(css = "h3.content-name")
+    private WebElement tituloDoFilme;
+
+    public void validarExistenciaTituloDoFilme(){
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        wait.until(ExpectedConditions.visibilityOf(tituloDoFilme));
+        String texto = tituloDoFilme.getText().trim();
+        
+        Assert.assertTrue("O título do filme não está sendo exibido!", tituloDoFilme.isDisplayed());
+        Assert.assertFalse("O título do filme está vazio no HTML!", texto.isEmpty());
+        
+        System.out.println("Título validado com sucesso: " + texto);
+    }
 }

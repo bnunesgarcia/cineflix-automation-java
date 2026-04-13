@@ -1,5 +1,9 @@
 package br.com.cineflix.steps;
 import java.util.List;
+
+import org.junit.Assert;
+import org.openqa.selenium.WebElement;
+
 import br.com.cineflix.pages.DepartamentosPages;
 import br.com.cineflix.support.Utils;
 import io.cucumber.java.pt.*;
@@ -43,8 +47,16 @@ public class Departamentos extends Utils {
     }
 
     @E("os campos {string} e {string} devem vir preenchidos")
-    public void validarCamposEditados(String campo1, String campo2) throws InterruptedException {
-        departamentos.validarCampoPreenchido(campo1, campo2);
+    public void validarCamposEditados(String campo1, String campo2) {
+        // Valida o primeiro campo
+        validarFluxoDeCampo(campo1);
+        // Valida o segundo campo
+        validarFluxoDeCampo(campo2);
+    }
+
+    private void validarFluxoDeCampo(String nomeDoCampoNoGherkin) {
+        WebElement elemento = departamentos.getElementoPorNome(nomeDoCampoNoGherkin);
+        departamentos.esperarEValidarCampoPreenchido(elemento, nomeDoCampoNoGherkin);
     }
 
     @Então("eu excluo {string}")

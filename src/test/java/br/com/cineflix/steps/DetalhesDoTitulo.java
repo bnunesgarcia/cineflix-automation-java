@@ -35,4 +35,28 @@ public class DetalhesDoTitulo extends Utils {
         detalhes.validarCardsNaSecao(categoria);
     }
 
+    @Então("o sistema deve abrir uma caixa de diálogo")
+    public void valida_caixa_de_dialogo(){
+        detalhes.validaCaixaDeDialogo();
+    }
+
+    @E("deve exibir a tabela de {string} com as colunas:")
+    public void valida_tabela_com_colunas(String nomeTabela, List<String> colunas) {
+        detalhes.validarColunasTabela(nomeTabela, colunas);
+    }
+
+    @Então("o sistema deve exibir os detalhes técnicos:")
+    public void valida_detalhes_tecnicos(List<String> detalhesTecnicos) {
+        detalhes.validarPresencaDetalhesTecnicos(detalhesTecnicos);
+    }
+
+    @Então("deve abrir caixa de diálogo contendo o trailer cadastrado pronto para executar")
+    public void valida_trailer() {
+        detalhes.validarTrailer();
+    }
+
+    @E("o sistema deve exibir o titulo do filme")
+    public void valida_titulo_do_filme() {
+        detalhes.validarExistenciaTituloDoFilme();
+    }
 }
