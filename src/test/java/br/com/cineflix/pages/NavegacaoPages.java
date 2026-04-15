@@ -97,37 +97,57 @@ public class NavegacaoPages extends Utils {
     }
 
     public void validaTema(String tema) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         WebElement body = driver.findElement(By.tagName("body"));
-        String classesDoBody = body.getAttribute("class");
-        String colorScheme = body.getAttribute("style");
+        
+        String classeEsperada = tema.toLowerCase() + "-theme";
+        String esquemaEsperado = "color-scheme: " + tema.toLowerCase();
 
-        if (tema.equalsIgnoreCase("Light")) {
-            Assert.assertTrue("O tema esperado era Light, mas a classe 'light-theme' não foi encontrada!", 
-                classesDoBody.contains("light-theme"));
-            Assert.assertTrue("O style 'color-scheme' não está como light!", 
-                colorScheme.contains("color-scheme: light"));
+        try {
+            // Espera até que a classe do body mude para o tema esperado
+            wait.until(ExpectedConditions.attributeContains(body, "class", classeEsperada));
 
-        } else if (tema.equalsIgnoreCase("Dark")) {
-            Assert.assertTrue("O tema esperado era Dark, mas a classe 'dark-theme' não foi encontrada!", 
-                classesDoBody.contains("dark-theme"));
-            Assert.assertTrue("O style 'color-scheme' não está como dark!", 
-                colorScheme.contains("color-scheme: dark"));
+            // Valida as informações usando getDomAttribute (substituto do getAttribute)
+            String classesAtuais = body.getDomAttribute("class");
+            String estiloAtual = body.getDomAttribute("style");
+
+            Assert.assertTrue("Classe '" + classeEsperada + "' não encontrada no body!", 
+                    classesAtuais.contains(classeEsperada));
+            
+            Assert.assertTrue("O style '" + esquemaEsperado + "' não foi aplicado!", 
+                    estiloAtual != null && estiloAtual.contains(esquemaEsperado));
+
+            System.out.println("Tema validado com sucesso: " + tema);
+
+        } catch (TimeoutException e) {
+            // Se der erro, mostramos o que realmente estava no body para facilitar o debug
+            String classesNoErro = body.getDomAttribute("class");
+            Assert.fail("Timeout: O tema não mudou para " + tema + " após 10s. Classes atuais: " + classesNoErro);
         }
     }
 
     public void trocarTemaEValidar(String temaAlvo) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        
+        String classeEsperada = temaAlvo.toLowerCase() + "-theme";
+        WebElement body = driver.findElement(By.tagName("body"));
+
         try {
-            wait.until(ExpectedConditions.presenceOfElementLocated(By.id("toggle-theme")));
-            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", botaoAlteracaoTema);
-            System.out.println("Solicitada alteração de tema para: " + temaAlvo);
-            String classeEsperada = temaAlvo.toLowerCase() + "-theme";
-            wait.until(ExpectedConditions.attributeContains(By.tagName("body"), "class", classeEsperada));
-            validaTema(temaAlvo);
+            String classesAtuais = body.getDomAttribute("class");
             
+            if (classesAtuais != null && classesAtuais.contains(classeEsperada)) {
+                System.out.println("O sistema já está no tema " + temaAlvo + ". Pulando clique.");
+            } else {
+                WebElement btn = wait.until(ExpectedConditions.elementToBeClickable(By.id("toggle-theme")));
+                ((JavascriptExecutor) driver).executeScript("arguments[0].click();", btn);
+                System.out.println("Clique efetuado para mudar para: " + temaAlvo);
+                wait.until(ExpectedConditions.attributeContains(By.tagName("body"), "class", classeEsperada));
+            }
+
+            // Valida os detalhes finais (color-scheme, etc)
+            validaTema(temaAlvo);
+
         } catch (Exception e) {
-            Assert.fail("Não foi possível trocar o tema para " + temaAlvo + ". Erro: " + e.getMessage());
+            Assert.fail("Falha ao trocar tema para " + temaAlvo + ". Detalhe: " + e.getMessage());
         }
     }
 
