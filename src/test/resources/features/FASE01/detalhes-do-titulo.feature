@@ -7,7 +7,7 @@ Funcionalidade: Tela de detalhes do título
     Contexto: 
     Dado que eu acesse a aplicacao cineflix
     E realizar o login na aplicacao com sucesso
-    E clicar em um banner pelo título "Mullewapp - Das Große Kinoabenteuer Der Freunde" na tela inicial
+    E clicar em um banner pelo título "A Aventura De Três Amigos" na tela inicial
 
 @automacao
 Cenário: Validar elementos da área fixa à esquerda

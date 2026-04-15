@@ -13,7 +13,7 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cucumber.version>7.15.0</cucumber.version>
-        <java.selenium.version>4.18.1</java.selenium.version>
+        <java.selenium.version>4.28.0</java.selenium.version>
     </properties>
     <dependencies>
         <!--CUCUMBER PARA JUNIT EXECUTAR-->
@@ -70,6 +70,10 @@
                            <include>**/RunCucumberTest.java</include>
                        </includes>
                        <testFailureIgnore>true</testFailureIgnore>
+                       <rerunFailingTestsCount>2</rerunFailingTestsCount>
+
+                       <!-- <parallel>methods</parallel>
+                       <threadCount>4</threadCount> <perCoreThreadCount>false</perCoreThreadCount> -->
                   </configuration>
             </plugin>
             <plugin>
@@ -87,6 +91,28 @@
                 <configuration>
                     <linkXRef>false</linkXRef>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>net.masterthought</groupId>
+                <artifactId>maven-cucumber-reporting</artifactId>
+                <version>5.7.0</version>
+                <executions>
+                    <execution>
+                        <id>execution</id>
+                        <phase>verify</phase> <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <projectName>Cineflix-Automation</projectName>
+                            <outputDirectory>${project.build.directory}/cucumber-reports-html</outputDirectory>
+                            <inputDirectory>${project.build.directory}/cucumber-reports</inputDirectory>
+                            <jsonFiles>
+                                <param>**/*.json</param>
+                            </jsonFiles>
+                            <checkBuildResult>false</checkBuildResult>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

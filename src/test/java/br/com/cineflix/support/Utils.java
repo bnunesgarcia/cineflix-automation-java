@@ -2,16 +2,42 @@ package br.com.cineflix.support;
 
 import br.com.cineflix.pages.DepartamentosPages;
 import br.com.cineflix.pages.PerfilDeAcessoPages;
-import br.com.cineflix.runner.RunCucumberTest;
 
 import org.junit.Assert;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import java.time.Duration;
 
-public class Utils extends RunCucumberTest {
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.Properties;
+
+public class Utils {
+
+    protected WebDriver driver;
+    protected static Properties properties;
+
+    public Utils(){
+        this.driver = DriverFactory.getDriver();
+        if (properties == null) {
+            carregarProperties();
+        }
+    }
+
+    private void carregarProperties() {
+        properties = new Properties();
+        try {
+            FileInputStream file = new FileInputStream("src/test/resources/application.properties");
+            properties.load(file);
+        } catch (IOException e) {
+            System.err.println("Erro ao carregar o arquivo application.properties: " + e.getMessage());
+        }
+    }
+
     public void esperarElementoEstarVisivel(By element, int timeout) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeout));
         wait.until(ExpectedConditions.elementToBeClickable(element));
@@ -62,6 +88,19 @@ public class Utils extends RunCucumberTest {
             perfilDeAcessoPages.excluirPerfisDeAcesso();
         } else {
             Assert.fail("Tipo de exclusão desconhecido: " + tipo);
+        }
+    }
+
+    public void waitAndClick(By locator) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        WebElement element = wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+        
+        try {
+            // Tenta o clique normal primeiro
+            wait.until(ExpectedConditions.elementToBeClickable(element)).click();
+        } catch (Exception e) {
+            // Se falhar (interceptado), força via JS
+            ((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
         }
     }
 
